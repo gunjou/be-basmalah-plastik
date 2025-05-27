@@ -16,7 +16,8 @@ from .customers import customers_ns
 from .reports import reports_ns
 
 api = Flask(__name__)
-CORS(app=api)
+# CORS(api)
+CORS(api, resources={r"/*": {"origins": ["http://localhost:3000", "https://basmalahplastik.shop"]}}, supports_credentials=True)
 
 api.config['JWT_SECRET_KEY'] = 'basmalahplastik2025'
 api.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=20)  # Atur sesuai kebutuhan
