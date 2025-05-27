@@ -9,6 +9,11 @@ from .auth import auth_ns
 from .categories import categories_ns
 from .units import units_ns
 from .products import products_ns
+from .stocks import stocks_ns
+from .transactions import transactions_ns
+from .debts import debts_ns
+from .customers import customers_ns
+from .reports import reports_ns
 
 api = Flask(__name__)
 CORS(app=api)
@@ -51,3 +56,7 @@ restx_api.add_namespace(auth_ns, path="/auth")
 restx_api.add_namespace(categories_ns, path="/categories")
 restx_api.add_namespace(units_ns, path="/units")
 restx_api.add_namespace(products_ns, path="/products")
+restx_api.add_namespace(stocks_ns, path="/stocks")
+restx_api.add_namespace(transactions_ns, path="/transactions")
+restx_api.add_namespace(debts_ns, path="/debts")
+restx_api.add_namespace(reports_ns, path="/reports")

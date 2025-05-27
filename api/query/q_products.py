@@ -36,6 +36,7 @@ def insert_product(data):
             VALUES (:nama, :barcode, :id_kategori, :id_satuan, :harga_beli, :harga_jual)
             RETURNING id, nama
         """), data).mappings().fetchone()
+        connection.commit()
         return dict(result)
     except SQLAlchemyError as e:
         print(f"Error occurred: {str(e)}")
@@ -66,6 +67,7 @@ def update_product(product_id, data):
                 id_satuan = :id_satuan, harga_beli = :harga_beli, harga_jual = :harga_jual
             WHERE id = :id RETURNING id
         """), {**data, "id": product_id}).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")
@@ -77,6 +79,7 @@ def delete_product(product_id):
             text("DELETE FROM products WHERE id = :id RETURNING id"),
             {"id": product_id}
         ).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")

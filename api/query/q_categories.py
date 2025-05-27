@@ -23,6 +23,7 @@ def insert_category(nama):
             text("INSERT INTO categories (nama) VALUES (:nama) RETURNING id, nama"),
             {"nama": nama}
         ).mappings().fetchone()
+        connection.commit()
         return dict(result)
     except SQLAlchemyError as e:
         print(f"Error occurred: {str(e)}")
@@ -34,7 +35,7 @@ def get_category_by_id(category_id):
             text("SELECT * FROM categories WHERE id = :id"),
             {"id": category_id}
         ).mappings().fetchone()
-        return result
+        return dict(result) if result else None
     except SQLAlchemyError as e:
         print(f"Error: {e}")
         return None
@@ -45,6 +46,7 @@ def update_category(category_id, nama):
             text("UPDATE categories SET nama = :nama WHERE id = :id RETURNING id"),
             {"id": category_id, "nama": nama}
         ).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")
@@ -56,6 +58,7 @@ def delete_category(category_id):
             text("DELETE FROM categories WHERE id = :id RETURNING id"),
             {"id": category_id}
         ).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")

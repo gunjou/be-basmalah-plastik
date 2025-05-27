@@ -21,6 +21,7 @@ def insert_unit(nama):
             text("INSERT INTO units (nama) VALUES (:nama) RETURNING id, nama"),
             {"nama": nama}
         ).mappings().fetchone()
+        connection.commit()
         return dict(result)
     except SQLAlchemyError as e:
         print(f"Error: {e}")
@@ -43,6 +44,7 @@ def update_unit(unit_id, nama):
             text("UPDATE units SET nama = :nama WHERE id = :id RETURNING id"),
             {"id": unit_id, "nama": nama}
         ).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")
@@ -54,6 +56,7 @@ def delete_unit(unit_id):
             text("DELETE FROM units WHERE id = :id RETURNING id"),
             {"id": unit_id}
         ).fetchone()
+        connection.commit()
         return result
     except SQLAlchemyError as e:
         print(f"Error: {e}")
