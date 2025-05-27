@@ -6,6 +6,20 @@ from ..config import get_connection
 
 connection = get_connection().connect()
 
+def get_product_by_barcode(barcode):
+    query = text("SELECT * FROM products WHERE barcode = :barcode")
+    result = connection.execute(query, {"barcode": barcode}).mappings().fetchone()
+    return dict(result) if result else None
+
+def add_product(data):
+    query = text("""
+        INSERT INTO products (nama, barcode, id_kategori, id_satuan, harga_beli, harga_jual)
+        VALUES (:nama, :barcode, :id_kategori, :id_satuan, :harga_beli, :harga_jual)
+        RETURNING *
+    """)
+    result = connection.execute(query, data).mappings().fetchone()
+    return dict(result)
+
 def convert_decimal_to_float(data):
     if isinstance(data, list):
         return [convert_decimal_to_float(item) for item in data]

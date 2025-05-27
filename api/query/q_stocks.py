@@ -1,6 +1,7 @@
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 from ..config import get_connection
+from .q_products import get_product_by_barcode, add_product
 
 connection = get_connection().connect()
 
@@ -23,8 +24,32 @@ def get_stock_detail(product_id, location_id):
     return dict(result) if result else None
 
 def add_stock(data):
-    existing = get_stock_detail(data['product_id'], data['location_id'])
-    if existing:
+    # Cek produk berdasarkan barcode
+    existing_product = get_product_by_barcode(data["barcode"])
+    if existing_product:
+        product_id = existing_product["id"]
+    else:
+        # Tambahkan produk baru
+        new_product = add_product({
+            "nama": data["nama"],
+            "barcode": data["barcode"],
+            "id_kategori": data["id_kategori"],
+            "id_satuan": data["id_satuan"],
+            "harga_beli": data["harga_beli"],
+            "harga_jual": data["harga_jual"]
+        })
+        product_id = new_product["id"]
+
+    # Cek stok apakah sudah ada
+    check_stock = text("""
+        SELECT * FROM stocks WHERE product_id = :product_id AND location_id = :location_id
+    """)
+    existing_stock = connection.execute(check_stock, {
+        "product_id": product_id,
+        "location_id": data["location_id"]
+    }).mappings().fetchone()
+
+    if existing_stock:
         query = text("""
             UPDATE stocks SET jumlah = jumlah + :jumlah
             WHERE product_id = :product_id AND location_id = :location_id
@@ -36,15 +61,20 @@ def add_stock(data):
             VALUES (:product_id, :location_id, :jumlah)
             RETURNING *
         """)
-    result = connection.execute(query, data).mappings().fetchone()
 
-    # Log ke stock_history
+    result = connection.execute(query, {
+        "product_id": product_id,
+        "location_id": data["location_id"],
+        "jumlah": data["jumlah"]
+    }).mappings().fetchone()
+
+    # Log ke histori
     log_query = text("""
         INSERT INTO stock_history (product_id, location_id, jumlah, tipe, keterangan)
         VALUES (:product_id, :location_id, :jumlah, :tipe, :keterangan)
     """)
     connection.execute(log_query, {
-        "product_id": data["product_id"],
+        "product_id": product_id,
         "location_id": data["location_id"],
         "jumlah": data["jumlah"],
         "tipe": "in",

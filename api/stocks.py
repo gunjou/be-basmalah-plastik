@@ -8,10 +8,15 @@ from .query.q_stocks import *
 
 stocks_ns = Namespace("stocks", description="Stock related endpoints")
 
-stock_model = stocks_ns.model("Stock", {
-    "product_id": fields.Integer(required=True),
+stock_input_model = stocks_ns.model("StockInput", {
+    "nama": fields.String(required=True),
+    "barcode": fields.String(required=True),
+    "jumlah": fields.Integer(required=True),
+    "harga_beli": fields.Float(required=True),
+    "harga_jual": fields.Float(required=True),
+    "id_kategori": fields.Integer(required=True),
+    "id_satuan": fields.Integer(required=True),
     "location_id": fields.Integer(required=True),
-    "jumlah": fields.Float(required=True),
     "keterangan": fields.String(required=False)
 })
 
@@ -51,11 +56,11 @@ class StockDetail(Resource):
             logging.error(f"Error fetching stock detail: {str(e)}")
             return {"status": "Terjadi kesalahan di server"}, 500
 
-
+# stocks.py
 @stocks_ns.route('/in')
 class StockIn(Resource):
     @jwt_required()
-    @stocks_ns.expect(stock_model)
+    @stocks_ns.expect(stock_input_model)
     def post(self):
         data = request.get_json()
         try:
@@ -69,7 +74,7 @@ class StockIn(Resource):
 @stocks_ns.route('/out')
 class StockOut(Resource):
     @jwt_required()
-    @stocks_ns.expect(stock_model)
+    @stocks_ns.expect(stock_input_model)
     def post(self):
         data = request.get_json()
         try:
