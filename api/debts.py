@@ -13,7 +13,7 @@ debt_payment_model = debts_ns.model("DebtPayment", {
 
 @debts_ns.route('')
 class DebtList(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         lokasi_id = request.args.get("lokasi_id", type=int)
         try:
@@ -23,7 +23,7 @@ class DebtList(Resource):
             logging.error(str(e))
             return {"status": "Terjadi kesalahan server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @debts_ns.expect(debt_payment_model)
     def post(self):
         data = request.get_json()
@@ -45,7 +45,7 @@ class DebtList(Resource):
 
 @debts_ns.route('/payments')
 class DebtPayments(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         debt_id = request.args.get("debt_id", type=int)
         if not debt_id:
@@ -60,7 +60,7 @@ class DebtPayments(Resource):
 
 @debts_ns.route('/summary')
 class DebtSummary(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         lokasi_id = request.args.get("lokasi_id", type=int)
         try:
@@ -72,7 +72,7 @@ class DebtSummary(Resource):
 
 @debts_ns.route('/debtors')
 class DebtorsList(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         lokasi_id = request.args.get("lokasi_id", type=int)
         try:

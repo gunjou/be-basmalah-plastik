@@ -18,7 +18,7 @@ product_model = products_ns.model("Product", {
 
 @products_ns.route('/')
 class ProductListResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         try:
             data = get_all_products()
@@ -29,7 +29,7 @@ class ProductListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @products_ns.expect(product_model)
     def post(self):
         payload = request.get_json()
@@ -43,7 +43,7 @@ class ProductListResource(Resource):
 
 @products_ns.route('/<int:id>')
 class ProductDetailResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, id):
         try:
             product = get_product_by_id(id)
@@ -53,7 +53,7 @@ class ProductDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @products_ns.expect(product_model)
     def put(self, id):
         payload = request.get_json()
@@ -65,7 +65,7 @@ class ProductDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
         try:
             deleted = delete_product(id)

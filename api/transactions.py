@@ -27,7 +27,7 @@ transaction_model = transactions_ns.model("Transaction", {
 
 @transactions_ns.route('/')
 class TransactionList(Resource):
-    @jwt_required()
+    # @jwt_required()
     @transactions_ns.expect(transaction_model)
     def post(self):
         data = request.get_json()
@@ -52,7 +52,7 @@ class TransactionList(Resource):
 
 @transactions_ns.route('/<int:id>')
 class TransactionDetail(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, id):
         try:
             transaction = get_transaction_detail(id)
@@ -64,7 +64,7 @@ class TransactionDetail(Resource):
 
 @transactions_ns.route('/print_invoice/<int:id>')
 class TransactionInvoice(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, id):
         try:
             invoice_data = get_invoice_data(id)

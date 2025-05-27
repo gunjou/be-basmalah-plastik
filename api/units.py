@@ -13,7 +13,7 @@ unit_model = units_ns.model("Unit", {
 
 @units_ns.route('/')
 class UnitListResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         try:
             data = get_all_units()
@@ -24,7 +24,7 @@ class UnitListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @units_ns.expect(unit_model)
     def post(self):
         payload = request.get_json()
@@ -43,7 +43,7 @@ class UnitListResource(Resource):
 
 @units_ns.route('/<int:id>')
 class UnitDetailResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, id):
         try:
             unit = get_unit_by_id(id)
@@ -53,7 +53,7 @@ class UnitDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @units_ns.expect(unit_model)
     def put(self, id):
         payload = request.get_json()
@@ -70,7 +70,7 @@ class UnitDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
         try:
             deleted = delete_unit(id)

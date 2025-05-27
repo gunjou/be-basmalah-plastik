@@ -11,7 +11,7 @@ parser.add_argument("lokasi_id", type=int, required=False)
 
 @reports_ns.route('/transactions')
 class ReportTransaction(Resource):
-    @jwt_required()
+    # @jwt_required()
     @reports_ns.expect(parser)
     def get(self):
         args = parser.parse_args()

@@ -14,7 +14,7 @@ category_model = categories_ns.model("Category", {
         
 @categories_ns.route('/')
 class CategoryCreate(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         try:
             data = get_all_categories()
@@ -26,7 +26,7 @@ class CategoryCreate(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    @jwt_required()
+    # @jwt_required()
     @categories_ns.expect(category_model)
     def post(self):
         payload = request.get_json()
@@ -46,7 +46,7 @@ class CategoryCreate(Resource):
 
 @categories_ns.route('/<int:id>')
 class CategoryDetailResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, id):
         try:
             category = get_category_by_id(id)
@@ -56,7 +56,7 @@ class CategoryDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
         
-    @jwt_required()
+    # @jwt_required()
     @categories_ns.expect(category_model)
     def put(self, id):
         payload = request.get_json()
@@ -73,7 +73,7 @@ class CategoryDetailResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     def delete(self, id):
         try:
             deleted = delete_category(id)

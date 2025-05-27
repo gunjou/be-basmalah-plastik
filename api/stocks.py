@@ -31,7 +31,7 @@ transfer_model = stocks_ns.model("StockTransfer", {
 
 @stocks_ns.route('/')
 class StockList(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         try:
             location_id = request.args.get('location_id')
@@ -45,7 +45,7 @@ class StockList(Resource):
 
 @stocks_ns.route('/<int:product_id>/<int:location_id>')
 class StockDetail(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self, product_id, location_id):
         try:
             stock = get_stock_detail(product_id, location_id)
@@ -59,7 +59,7 @@ class StockDetail(Resource):
 # stocks.py
 @stocks_ns.route('/in')
 class StockIn(Resource):
-    @jwt_required()
+    # @jwt_required()
     @stocks_ns.expect(stock_input_model)
     def post(self):
         data = request.get_json()
@@ -73,7 +73,7 @@ class StockIn(Resource):
 
 @stocks_ns.route('/out')
 class StockOut(Resource):
-    @jwt_required()
+    # @jwt_required()
     @stocks_ns.expect(stock_input_model)
     def post(self):
         data = request.get_json()
@@ -89,7 +89,7 @@ class StockOut(Resource):
 
 @stocks_ns.route('/transfer')
 class StockTransfer(Resource):
-    @jwt_required()
+    # @jwt_required()
     @stocks_ns.expect(transfer_model)
     def post(self):
         data = request.get_json()
@@ -103,7 +103,7 @@ class StockTransfer(Resource):
 
 @stocks_ns.route('/history')
 class StockHistoryResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('product_id', type=int)
@@ -129,7 +129,7 @@ class StockHistoryResource(Resource):
 
 @stocks_ns.route('/opname')
 class StockOpnameResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def post(self):
         payload = request.get_json()
         required_fields = ["product_id", "location_id", "jumlah_fisik"]
@@ -148,7 +148,7 @@ class StockOpnameResource(Resource):
 
 @stocks_ns.route('/opname/history')
 class StockOpnameLogResource(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         parser = reqparse.RequestParser()
         parser.add_argument('product_id', type=int)

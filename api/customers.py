@@ -15,7 +15,7 @@ customer_model = customers_ns.model("Customer", {
 
 @customers_ns.route('')
 class CustomerList(Resource):
-    @jwt_required()
+    # @jwt_required()
     def get(self):
         lokasi_id = request.args.get("lokasi_id", type=int)
         try:
@@ -25,7 +25,7 @@ class CustomerList(Resource):
             logging.error(str(e))
             return {"status": "Terjadi kesalahan server"}, 500
 
-    @jwt_required()
+    # @jwt_required()
     @customers_ns.expect(customer_model)
     def post(self):
         data = request.get_json()
