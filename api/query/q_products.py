@@ -33,10 +33,13 @@ def get_all_products():
             SELECT 
                 p.*, 
                 c.nama AS nama_kategori,
-                u.nama AS nama_satuan
+                u.nama AS nama_satuan,
+                COALESCE(SUM(s.jumlah), 0) AS jumlah_stok
             FROM products p
             LEFT JOIN categories c ON p.id_kategori = c.id
             LEFT JOIN units u ON p.id_satuan = u.id
+            LEFT JOIN stocks s ON p.id = s.product_id
+            GROUP BY p.id, c.nama, u.nama
         """)).mappings().fetchall()
         return convert_decimal_to_float([dict(row) for row in result])
     except SQLAlchemyError as e:
@@ -62,11 +65,14 @@ def get_product_by_id(product_id):
             SELECT 
                 p.*, 
                 c.nama AS nama_kategori,
-                u.nama AS nama_satuan
+                u.nama AS nama_satuan,
+                COALESCE(SUM(s.jumlah), 0) AS jumlah_stok
             FROM products p
             LEFT JOIN categories c ON p.id_kategori = c.id
             LEFT JOIN units u ON p.id_satuan = u.id
+            LEFT JOIN stocks s ON p.id = s.product_id
             WHERE p.id = :id
+            GROUP BY p.id, c.nama, u.nama
         """), {"id": product_id}).mappings().fetchone()
         return convert_decimal_to_float(dict(result) if result else None)
     except SQLAlchemyError as e:
