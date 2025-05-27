@@ -16,7 +16,8 @@ from .customers import customers_ns
 from .reports import reports_ns
 
 api = Flask(__name__)
-CORS(app=api)
+# CORS(app=api)
+CORS(api, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 api.config['JWT_SECRET_KEY'] = 'basmalahplastik2025'
 api.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=20)  # Atur sesuai kebutuhan
@@ -59,4 +60,5 @@ restx_api.add_namespace(products_ns, path="/products")
 restx_api.add_namespace(stocks_ns, path="/stocks")
 restx_api.add_namespace(transactions_ns, path="/transactions")
 restx_api.add_namespace(debts_ns, path="/debts")
+restx_api.add_namespace(customers_ns, path="/customers")
 restx_api.add_namespace(reports_ns, path="/reports")
