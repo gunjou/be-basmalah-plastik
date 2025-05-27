@@ -43,7 +43,7 @@ class StockList(Resource):
             return {"status": "Terjadi kesalahan di server"}, 500
 
 
-@stocks_ns.route('/<int:product_id>/<int:location_id>')
+@stocks_ns.route('/<int:product_id>/<int:location_id>/')
 class StockDetail(Resource):
     # @jwt_required()
     def get(self, product_id, location_id):

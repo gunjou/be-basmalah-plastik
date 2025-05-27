@@ -50,7 +50,7 @@ class TransactionList(Resource):
         except SQLAlchemyError as e:
             return {"status": "Terjadi kesalahan di server", "error": str(e)}, 500
 
-@transactions_ns.route('/<int:id>')
+@transactions_ns.route('/<int:id>/')
 class TransactionDetail(Resource):
     # @jwt_required()
     def get(self, id):
@@ -62,7 +62,7 @@ class TransactionDetail(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-@transactions_ns.route('/print_invoice/<int:id>')
+@transactions_ns.route('/print_invoice/<int:id>/')
 class TransactionInvoice(Resource):
     # @jwt_required()
     def get(self, id):

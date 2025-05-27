@@ -44,7 +44,7 @@ class CategoryCreate(Resource):
             return {"status": "Terjadi kesalahan di server"}, 500
         
 
-@categories_ns.route('/<int:id>')
+@categories_ns.route('/<int:id>/')
 class CategoryDetailResource(Resource):
     # @jwt_required()
     def get(self, id):

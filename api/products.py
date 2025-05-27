@@ -41,7 +41,7 @@ class ProductListResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-@products_ns.route('/<int:id>')
+@products_ns.route('/<int:id>/')
 class ProductDetailResource(Resource):
     # @jwt_required()
     def get(self, id):
@@ -73,4 +73,4 @@ class ProductDetailResource(Resource):
                 return {"status": "Produk tidak ditemukan"}, 404
             return {"status": "Produk berhasil dihapus"}, 200
         except SQLAlchemyError:
-            return {"status": "Terjadi kesalahan di server"}, 500
+            return {"status": "Terjadi kesalahan di server"}, 500    

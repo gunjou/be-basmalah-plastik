@@ -41,7 +41,7 @@ class UnitListResource(Resource):
         except SQLAlchemyError:
             return {"status": "Terjadi kesalahan di server"}, 500
 
-@units_ns.route('/<int:id>')
+@units_ns.route('/<int:id>/')
 class UnitDetailResource(Resource):
     # @jwt_required()
     def get(self, id):
