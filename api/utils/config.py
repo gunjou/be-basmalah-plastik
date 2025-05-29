@@ -1,9 +1,9 @@
 import os
+import pytz
+from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import create_engine
 
-
-load_dotenv()
 
 # load .env
 load_dotenv()
@@ -18,3 +18,9 @@ def get_connection():
     password = os.getenv("DB_PASS")
 
     return create_engine(f'postgresql+psycopg2://{username}:{password}@{host}:{port}/{dbname}')
+
+# === Mencari Timestamp WITA === #
+def get_wita():
+    wita = pytz.timezone('Asia/Makassar')
+    now_wita = datetime.now(wita)
+    return now_wita.replace(tzinfo=None)

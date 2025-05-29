@@ -2,7 +2,7 @@ from flask_jwt_extended import create_access_token
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from ..config import get_connection
+from ..utils.config import get_connection
 
 
 connection = get_connection().connect()

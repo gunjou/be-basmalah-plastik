@@ -4,16 +4,13 @@ from flask_cors import CORS
 from flask_jwt_extended import JWTManager
 from flask_restx import Api
 
-from .blacklist_store import is_token_revoked
+from .utils.blacklist_store import is_token_revoked
 from .auth import auth_ns
-from .categories import categories_ns
-from .units import units_ns
-from .products import products_ns
-from .stocks import stocks_ns
-from .transactions import transactions_ns
-from .debts import debts_ns
-from .customers import customers_ns
-from .reports import reports_ns
+from .user import user_ns
+from .lokasi import lokasi_ns
+from .produk import produk_ns
+from .stok import stok_ns
+from .mutasi_stok import mutasi_stok_ns
 
 api = Flask(__name__)
 CORS(api)
@@ -53,11 +50,8 @@ restx_api = Api(
     )
 
 restx_api.add_namespace(auth_ns, path="/auth")
-restx_api.add_namespace(categories_ns, path="/categories")
-restx_api.add_namespace(units_ns, path="/units")
-restx_api.add_namespace(products_ns, path="/products")
-restx_api.add_namespace(stocks_ns, path="/stocks")
-restx_api.add_namespace(transactions_ns, path="/transactions")
-restx_api.add_namespace(debts_ns, path="/debts")
-restx_api.add_namespace(customers_ns, path="/customers")
-restx_api.add_namespace(reports_ns, path="/reports")
+restx_api.add_namespace(user_ns, path="/user")
+restx_api.add_namespace(lokasi_ns, path="/lokasi")
+restx_api.add_namespace(produk_ns, path="/produk")
+restx_api.add_namespace(stok_ns, path="/stok")
+restx_api.add_namespace(mutasi_stok_ns, path="/mutasi-stok")

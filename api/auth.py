@@ -4,7 +4,7 @@ from flask_jwt_extended import get_jwt, jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
 from .query.q_auth import login_user
-from .blacklist_store import add_to_blacklist
+from .utils.blacklist_store import add_to_blacklist
 
 
 auth_ns = Namespace("auth", description="Auth related endpoints")
