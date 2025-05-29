@@ -11,6 +11,7 @@ from .lokasi import lokasi_ns
 from .produk import produk_ns
 from .stok import stok_ns
 from .mutasi_stok import mutasi_stok_ns
+from .pelanggan import pelanggan_ns
 
 api = Flask(__name__)
 CORS(api)
@@ -55,3 +56,4 @@ restx_api.add_namespace(lokasi_ns, path="/lokasi")
 restx_api.add_namespace(produk_ns, path="/produk")
 restx_api.add_namespace(stok_ns, path="/stok")
 restx_api.add_namespace(mutasi_stok_ns, path="/mutasi-stok")
+restx_api.add_namespace(pelanggan_ns, path="/pelanggan")
