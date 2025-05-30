@@ -1,8 +1,9 @@
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from ..utils.config import get_connection
+from ..utils.config import get_connection, get_wita
 
 connection = get_connection().connect()
+timestamp_wita = get_wita()
 
 def get_all_lokasi():
     try:
@@ -48,11 +49,11 @@ def update_lokasi(id_lokasi, data):
     try:
         result = connection.execute(
             text("""
-                UPDATE lokasi SET nama_lokasi = :nama_lokasi, tipe = :tipe, updated_at = CURRENT_TIMESTAMP
+                UPDATE lokasi SET nama_lokasi = :nama_lokasi, tipe = :tipe, updated_at = :timestamp_wita
                 WHERE id_lokasi = :id_lokasi RETURNING nama_lokasi;
                 """
                 ),
-            {**data, "id_lokasi": id_lokasi}
+            {**data, "id_lokasi": id_lokasi, "timestamp_wita": timestamp_wita}
         ).fetchone()
         connection.commit()
         return result
@@ -63,8 +64,8 @@ def update_lokasi(id_lokasi, data):
 def delete_lokasi(id_lokasi):
     try:
         result = connection.execute(
-            text("UPDATE lokasi SET status = 0, updated_at = CURRENT_TIMESTAMP WHERE status = 1 AND id_lokasi = :id_lokasi RETURNING nama_lokasi;"),
-            {"id_lokasi": id_lokasi}
+            text("UPDATE lokasi SET status = 0, updated_at = :timestamp_wita WHERE status = 1 AND id_lokasi = :id_lokasi RETURNING nama_lokasi;"),
+            {"id_lokasi": id_lokasi, "timestamp_wita": timestamp_wita}
         ).fetchone()
         connection.commit()
         return result

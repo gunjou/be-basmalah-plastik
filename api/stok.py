@@ -24,6 +24,9 @@ class StokListResource(Resource):
     # @jwt_required()
     @stok_ns.param("id_lokasi", "ID Lokasi untuk filter stok", type="integer")
     def get(self):
+        """
+        ambil data stok dengan optional filter
+        """
         id_lokasi = request.args.get("id_lokasi", type=int)
         try:
             all_stok = get_all_stok(id_lokasi)

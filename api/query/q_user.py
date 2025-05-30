@@ -1,8 +1,9 @@
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
-from ..utils.config import get_connection
+from ..utils.config import get_connection, get_wita
 
 connection = get_connection().connect()
+timestamp_wita = get_wita()
 
 def get_all_users():
     try:
@@ -48,11 +49,11 @@ def update_user(id_user, data):
     try:
         result = connection.execute(
             text("""
-                UPDATE users SET id_lokasi = :id_lokasi, username = :username, password = :password, role = :role, updated_at = CURRENT_TIMESTAMP 
+                UPDATE users SET id_lokasi = :id_lokasi, username = :username, password = :password, role = :role, updated_at = :timestamp_wita 
                 WHERE id_user = :id_user RETURNING username;
                 """
                 ),
-            {**data, "id_user": id_user}
+            {**data, "id_user": id_user, "timestamp_wita": timestamp_wita}
         ).fetchone()
         connection.commit()
         return result
@@ -63,8 +64,8 @@ def update_user(id_user, data):
 def delete_user(id_user):
     try:
         result = connection.execute(
-            text("UPDATE users SET status = 0, updated_at = CURRENT_TIMESTAMP WHERE status = 1 AND id_user = :id_user RETURNING username;"),
-            {"id_user": id_user}
+            text("UPDATE users SET status = 0, updated_at = :timestamp_wita WHERE status = 1 AND id_user = :id_user RETURNING username;"),
+            {"id_user": id_user, "timestamp_wita": timestamp_wita}
         ).fetchone()
         connection.commit()
         return result

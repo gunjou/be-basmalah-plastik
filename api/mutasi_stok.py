@@ -17,12 +17,16 @@ mutasi_stok_model = mutasi_stok_ns.model("MutasiStok", {
 
 @mutasi_stok_ns.route('/')
 class MutasiStokListResource(Resource):
+    # @jwt_required()
     @mutasi_stok_ns.param("id_produk", "Filter berdasarkan ID produk", type="integer")
     @mutasi_stok_ns.param("id_lokasi_asal", "Filter berdasarkan lokasi asal", type="integer")
     @mutasi_stok_ns.param("id_lokasi_tujuan", "Filter berdasarkan lokasi tujuan", type="integer")
     @mutasi_stok_ns.param("tanggal_awal", "Tanggal awal dalam format YYYY-MM-DD", type="string")
     @mutasi_stok_ns.param("tanggal_akhir", "Tanggal akhir dalam format YYYY-MM-DD", type="string")
     def get(self):
+        """
+        ambil data stok dengan optional filter
+        """
         filters = {
             "id_produk": request.args.get("id_produk", type=int),
             "id_lokasi_asal": request.args.get("id_lokasi_asal", type=int),
@@ -40,6 +44,7 @@ class MutasiStokListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {"status": "error", "message": "Internal server error"}, 500
         
+    # @jwt_required()
     @mutasi_stok_ns.expect(mutasi_stok_model)
     def post(self):
         payload = request.get_json()
