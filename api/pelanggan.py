@@ -14,8 +14,9 @@ pelanggan_model = pelanggan_ns.model("Pelanggan", {
 
 @pelanggan_ns.route('/')
 class PelangganListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
+        """akses: admin, kasir"""
         try:
             result = get_all_pelanggan()
             if not result:
@@ -25,9 +26,10 @@ class PelangganListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @pelanggan_ns.expect(pelanggan_model)
     def post(self):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             new_pelanggan = insert_pelanggan(payload)
@@ -41,8 +43,9 @@ class PelangganListResource(Resource):
 
 @pelanggan_ns.route('/<int:id>')
 class PelangganDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id):
+        """akses: admin, kasir"""
         try:
             pelanggan = get_pelanggan_by_id(id)
             if not pelanggan:
@@ -52,9 +55,10 @@ class PelangganDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @pelanggan_ns.expect(pelanggan_model)
     def put(self, id):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             updated = update_pelanggan(id, payload)
@@ -65,8 +69,9 @@ class PelangganDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500  
         
-    # @jwt_required()
+    @jwt_required()
     def delete(self, id):
+        """akses: admin, kasir"""
         try:
             deleted = delete_pelanggan(id)
             if not deleted:

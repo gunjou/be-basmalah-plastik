@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
+from .utils.decorator import role_required
 from .query.q_produk import *
 
 produk_ns = Namespace("produk", description="Produk related endpoints")
@@ -18,8 +19,9 @@ produk_model = produk_ns.model("Produk", {
 
 @produk_ns.route('/')
 class ProdukListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
+        """akses: admin, kasir"""
         try:
             all_produk = get_all_produk()
             if not all_produk:
@@ -45,8 +47,9 @@ class ProdukListResource(Resource):
 
 @produk_ns.route('/<int:id>')
 class ProdukDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id):
+        """akses: admin, kasir"""
         try:
             produk = get_produk_by_id(id)
             if not produk:
@@ -56,9 +59,10 @@ class ProdukDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @produk_ns.expect(produk_model)
     def put(self, id):
+        """akses: admin"""
         payload = request.get_json()
         try:
             updated = update_produk(id, payload)
@@ -69,8 +73,9 @@ class ProdukDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500  
         
-    # @jwt_required()
+    @role_required('admin')
     def delete(self, id):
+        """akses: admin"""
         try:
             deleted = delete_produk(id)
             if not deleted:

@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
+from .utils.decorator import role_required
 from .query.q_mutasi_stok import *
 
 mutasi_stok_ns = Namespace("mutasi-stok", description="mutasi stok related endpoints")
@@ -17,7 +18,7 @@ mutasi_stok_model = mutasi_stok_ns.model("MutasiStok", {
 
 @mutasi_stok_ns.route('/')
 class MutasiStokListResource(Resource):
-    # @jwt_required()
+    @role_required('admin')
     @mutasi_stok_ns.param("id_produk", "Filter berdasarkan ID produk", type="integer")
     @mutasi_stok_ns.param("id_lokasi_asal", "Filter berdasarkan lokasi asal", type="integer")
     @mutasi_stok_ns.param("id_lokasi_tujuan", "Filter berdasarkan lokasi tujuan", type="integer")
@@ -25,7 +26,7 @@ class MutasiStokListResource(Resource):
     @mutasi_stok_ns.param("tanggal_akhir", "Tanggal akhir dalam format YYYY-MM-DD", type="string")
     def get(self):
         """
-        ambil data stok dengan optional filter
+        akses: admin; ambil data stok dengan optional filter
         """
         filters = {
             "id_produk": request.args.get("id_produk", type=int),
@@ -44,9 +45,10 @@ class MutasiStokListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {"status": "error", "message": "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @mutasi_stok_ns.expect(mutasi_stok_model)
     def post(self):
+        """akses: admin"""
         payload = request.get_json()
         try:
             result = insert_mutasi_stok(payload)

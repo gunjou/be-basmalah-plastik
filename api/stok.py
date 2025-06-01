@@ -21,11 +21,11 @@ stok_model = stok_ns.model("Stok", {
 
 @stok_ns.route('/')
 class StokListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     @stok_ns.param("id_lokasi", "ID Lokasi untuk filter stok", type="integer")
     def get(self):
         """
-        ambil data stok dengan optional filter
+        akses: admin, kasir; ambil data stok dengan optional filter
         """
         id_lokasi = request.args.get("id_lokasi", type=int)
         try:
@@ -37,9 +37,10 @@ class StokListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @stok_ns.expect(stok_model)
     def post(self):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             new_stok = insert_stok(payload)
@@ -56,9 +57,10 @@ class StokListResource(Resource):
 
 @stok_ns.route('/<int:id_stok>')
 class StokDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     @stok_ns.expect(stok_model)
     def put(self, id_stok):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             updated = update_stok(id_stok, payload)
@@ -72,8 +74,9 @@ class StokDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     def delete(self, id_stok):
+        """akses: admin, kasir"""
         try:
             deleted = delete_stok(id_stok)
             if not deleted:

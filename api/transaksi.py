@@ -32,10 +32,10 @@ class TransaksiListResource(Resource):
         'tanggal': 'Filter berdasarkan tanggal transaksi (format: YYYY-MM-DD)',
         'status_hutang': 'Filter status hutang ("lunas" atau "belum lunas")'
     })
-    # @jwt_required()
+    @jwt_required()
     def get(self):
         """
-        Ambil semua transaksi dengan optional filter
+        akses: admin, kasir; Ambil semua transaksi dengan optional filter
         """
         try:
             result = get_all_transaksi()
@@ -46,9 +46,10 @@ class TransaksiListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @transaksi_ns.expect(transaksi_model)
     def post(self):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             new_transaksi = insert_transaksi(payload)
@@ -65,8 +66,9 @@ class TransaksiListResource(Resource):
 
 @transaksi_ns.route('/<int:id_transaksi>')
 class TransaksiDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id_transaksi):
+        """akses: admin, kasir"""
         try:
             transaksi = get_transaksi_by_id(id_transaksi)
             if not transaksi:

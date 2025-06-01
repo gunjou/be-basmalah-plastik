@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
+from .utils.decorator import role_required
 from .query.q_lokasi import *
 
 lokasi_ns = Namespace("lokasi", description="Lokasi related endpoints")
@@ -14,8 +15,9 @@ lokasi_model = lokasi_ns.model("Lokasi", {
 
 @lokasi_ns.route('/')
 class LokasiListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
+        """akses: admin, kasir"""
         try:
             result = get_all_lokasi()
             if not result:
@@ -25,9 +27,10 @@ class LokasiListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @lokasi_ns.expect(lokasi_model)
     def post(self):
+        """akses: admin"""
         payload = request.get_json()
         try:
             new_lokasi = insert_lokasi(payload)
@@ -41,8 +44,9 @@ class LokasiListResource(Resource):
 
 @lokasi_ns.route('/<int:id>')
 class LokasiDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id):
+        """akses: admin, kasir"""
         try:
             lokasi = get_lokasi_by_id(id)
             if not lokasi:
@@ -52,9 +56,10 @@ class LokasiDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @lokasi_ns.expect(lokasi_model)
     def put(self, id):
+        """akses: admin"""
         payload = request.get_json()
         try:
             updated = update_lokasi(id, payload)
@@ -65,8 +70,9 @@ class LokasiDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500  
         
-    # @jwt_required()
+    @role_required('admin')
     def delete(self, id):
+        """akses: admin"""
         try:
             deleted = delete_lokasi(id)
             if not deleted:

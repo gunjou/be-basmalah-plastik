@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
+from .utils.decorator import role_required
 from .query.q_laporan import *
 
 laporan_ns = Namespace("laporan", description="Laporan related endpoints")
@@ -15,8 +16,9 @@ laporan_model = laporan_ns.model("Laporan", {
 
 @laporan_ns.route('/transaksi')
 class LaporanListResource(Resource):
-    # @jwt_required()
+    @role_required('admin')
     def get(self):
+        """akses: admin"""
         try:
             result = get_all_laporan_transaksi()
             if not result:
@@ -29,12 +31,12 @@ class LaporanListResource(Resource):
 
 @laporan_ns.route('/penjualan-item')
 class LaporanPenjualanItemResource(Resource):
-    # @jwt_required()
+    @role_required('admin')
     @laporan_ns.param("id_produk", "Filter berdasarkan ID produk", type="integer")
     @laporan_ns.param("id_lokasi", "Filter berdasarkan ID lokasi", type="integer")
     def get(self):
         """
-        Laporan penjualan item per produk yang sudah diakumulasi.
+        akses: admin; Laporan penjualan item per produk yang sudah diakumulasi.
         Termasuk total qty, subtotal, modal, dan keuntungan.
         Bisa difilter berdasarkan id_produk dan/atau id_lokasi.
         """
@@ -52,12 +54,12 @@ class LaporanPenjualanItemResource(Resource):
 
 @laporan_ns.route('/stok')
 class LaporanStokResource(Resource):
-    # @jwt_required()
+    @role_required('admin')
     @laporan_ns.param("id_produk", "Filter berdasarkan ID produk", type="integer")
     @laporan_ns.param("id_lokasi", "Filter berdasarkan ID lokasi", type="integer")
     def get(self):
         """
-        Laporan stok per item, termasuk nilai modal dan potensi keuntungan.
+        akses: admin; Laporan stok per item, termasuk nilai modal dan potensi keuntungan.
         Bisa difilter berdasarkan id_produk dan id_lokasi.
         """
         id_produk = request.args.get("id_produk", type=int)

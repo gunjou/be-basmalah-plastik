@@ -3,6 +3,7 @@ from flask_restx import Namespace, Resource, fields
 from flask_jwt_extended import jwt_required
 from sqlalchemy.exc import SQLAlchemyError
 
+from .utils.decorator import role_required
 from .query.q_user import *
 
 user_ns = Namespace("user", description="User related endpoints")
@@ -16,8 +17,9 @@ user_model = user_ns.model("User", {
 
 @user_ns.route('/')
 class UserListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
+        """akses: admin, kasir"""
         try:
             result = get_all_users()
             if not result:
@@ -27,9 +29,10 @@ class UserListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @user_ns.expect(user_model)
     def post(self):
+        """akses: admin"""
         payload = request.get_json()
         try:
             new_user = insert_user(payload)
@@ -43,8 +46,9 @@ class UserListResource(Resource):
 
 @user_ns.route('/<int:id>')
 class UserDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id):
+        """akses: admin, kasir"""
         try:
             user = get_user_by_id(id)
             if not user:
@@ -54,9 +58,10 @@ class UserDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @role_required('admin')
     @user_ns.expect(user_model)
     def put(self, id):
+        """akses: admin"""
         payload = request.get_json()
         try:
             updated = update_user(id, payload)
@@ -67,8 +72,9 @@ class UserDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500  
         
-    # @jwt_required()
+    @role_required('admin')
     def delete(self, id):
+        """akses: admin"""
         try:
             deleted = delete_user(id)
             if not deleted:

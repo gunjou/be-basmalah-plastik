@@ -16,8 +16,9 @@ hutang_model = hutang_ns.model("Hutang", {
 
 @hutang_ns.route('/')
 class HutangListResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self):
+        """akses: admin, kasir"""
         try:
             result = get_all_hutang()
             if not result:
@@ -27,9 +28,10 @@ class HutangListResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @hutang_ns.expect(hutang_model)
     def post(self):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             new_hutang = insert_hutang(payload)
@@ -43,8 +45,9 @@ class HutangListResource(Resource):
 
 @hutang_ns.route('/<int:id_hutang>')
 class HutangDetailResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     def get(self, id_hutang):
+        """akses: admin, kasir"""
         try:
             hutang = get_hutang_by_id(id_hutang)
             if not hutang:
@@ -54,9 +57,10 @@ class HutangDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
         
-    # @jwt_required()
+    @jwt_required()
     @hutang_ns.expect(hutang_model)
     def put(self, id_hutang):
+        """akses: admin, kasir"""
         payload = request.get_json()
         try:
             updated = update_hutang(id_hutang, payload)
@@ -67,8 +71,9 @@ class HutangDetailResource(Resource):
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500  
         
-    # @jwt_required()
+    @jwt_required()
     def delete(self, id_hutang):
+        """akses: admin, kasir"""
         try:
             deleted = delete_hutang(id_hutang)
             if not deleted:
@@ -81,11 +86,11 @@ class HutangDetailResource(Resource):
 
 @hutang_ns.route('/total')
 class HutangCountResource(Resource):
-    # @jwt_required()
+    @jwt_required()
     @hutang_ns.param("id_pelanggan", "Filter berdasarkan ID pelanggan", type="integer")
     def get(self):
         """
-        total hutang dengan optional filter
+        akses: admin, kasir; total hutang dengan optional filter
         """
         id_pelanggan = request.args.get("id_pelanggan", type=int)
         try:
