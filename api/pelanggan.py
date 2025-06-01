@@ -9,7 +9,7 @@ pelanggan_ns = Namespace("pelanggan", description="Pelanggan related endpoints")
 
 pelanggan_model = pelanggan_ns.model("Pelanggan", {
     "nama_pelanggan": fields.String(required=True, description="Nama Pelanggan"),
-    "kontak": fields.String(required=False, description="Kontak (hp)"),
+    "kontak": fields.String(required=False, description="Kontak (nomor hp)"),
 })
 
 @pelanggan_ns.route('/')

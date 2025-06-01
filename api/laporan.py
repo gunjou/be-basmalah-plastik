@@ -9,7 +9,7 @@ laporan_ns = Namespace("laporan", description="Laporan related endpoints")
 
 laporan_model = laporan_ns.model("Laporan", {
     "nama_laporan": fields.String(required=True, description="Nama Laporan"),
-    "kontak": fields.String(required=False, description="Kontak (hp)"),
+    "kontak": fields.String(required=False, description="Kontak (nomor hp)"),
 })
 
 

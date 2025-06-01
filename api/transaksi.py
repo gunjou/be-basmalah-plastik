@@ -10,7 +10,7 @@ transaksi_ns = Namespace("transaksi", description="Transaksi related endpoints")
 item_model = transaksi_ns.model("Item", {
     "id_produk": fields.Integer(required=True, description="ID produk"),
     "qty": fields.Integer(required=True, description="Jumlah produk"),
-    "harga_satuan": fields.Integer(required=True, description="Harga satuan produk"),
+    "harga_jual": fields.Integer(required=True, description="Harga jual satuan produk"),
 })
 
 transaksi_model = transaksi_ns.model("Transaksi", {
@@ -18,7 +18,7 @@ transaksi_model = transaksi_ns.model("Transaksi", {
     "id_lokasi": fields.Integer(required=True, description="ID lokasi"),
     "id_pelanggan": fields.Integer(required=False, description="ID pelanggan (opsional)"),
     "nama_pelanggan": fields.String(required=False, description="Nama pelanggan (untuk tambah baru)"),
-    "no_hp": fields.String(required=False, description="Nomor HP pelanggan (jika pelanggan baru)"),
+    "kontak": fields.String(required=False, description="Kontak pelanggan (jika pelanggan baru)"),
     "total": fields.Integer(required=True, description="Total belanja"),
     "tunai": fields.Integer(required=True, description="Uang tunai"),
     "kembalian": fields.Integer(required=False, description="Kembalian (akan dihitung ulang jika tidak disediakan)"),

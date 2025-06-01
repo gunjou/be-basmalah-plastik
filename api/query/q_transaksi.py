@@ -65,7 +65,7 @@ def get_all_transaksi():
 
             # Ambil detail item
             detail_result = connection.execute(text("""
-                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan
+                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan AS harga_jual
                 FROM detailtransaksi dt
                 INNER JOIN produk pr ON dt.id_produk = pr.id_produk
                 WHERE dt.id_transaksi = :id_transaksi AND dt.status = 1;
@@ -76,7 +76,7 @@ def get_all_transaksi():
                     "id_produk": item["id_produk"],
                     "nama_produk": item["nama_produk"],
                     "qty": item["qty"],
-                    "harga_satuan": item["harga_satuan"]
+                    "harga_jual": item["harga_jual"]
                 } for item in detail_result
             ]
 
@@ -97,7 +97,7 @@ def insert_transaksi(payload):
         id_lokasi = payload.get("id_lokasi")
         id_pelanggan = payload.get("id_pelanggan")  # Optional
         nama_pelanggan = payload.get("nama_pelanggan")
-        no_hp = payload.get("no_hp")
+        kontak = payload.get("kontak")
         total = payload.get("total")
         tunai = payload.get("tunai")
         items = payload.get("items", [])
@@ -115,11 +115,11 @@ def insert_transaksi(payload):
         if not id_pelanggan and nama_pelanggan:
             result = connection.execute(text("""
                 INSERT INTO pelanggan (nama_pelanggan, kontak, status, created_at, updated_at)
-                VALUES (:nama_pelanggan, :no_hp, 1, :timestamp_wita, :timestamp_wita)
+                VALUES (:nama_pelanggan, :kontak, 1, :timestamp_wita, :timestamp_wita)
                 RETURNING id_pelanggan;
             """), {
                 "nama_pelanggan": nama_pelanggan,
-                "no_hp": no_hp,
+                "kontak": kontak,
                 "timestamp_wita": timestamp_wita
             })
             id_pelanggan = result.scalar()
@@ -173,13 +173,13 @@ def insert_transaksi(payload):
         for item in items:
             id_produk = item.get("id_produk")
             qty = item.get("qty")
-            harga_satuan = item.get("harga_satuan")
+            harga_jual = item.get("harga_jual")
 
-            if not id_produk or qty is None or harga_satuan is None:
-                raise ValueError("Setiap item harus memiliki id_produk, qty, dan harga_satuan.")
+            if not id_produk or qty is None or harga_jual is None:
+                raise ValueError("Setiap item harus memiliki id_produk, qty, dan harga_jual.")
             if qty <= 0:
                 raise ValueError(f"Qty harus lebih dari 0 untuk produk ID {id_produk}.")
-            if harga_satuan < 0:
+            if harga_jual < 0:
                 raise ValueError(f"Harga satuan tidak boleh negatif untuk produk ID {id_produk}.")
 
             # Cek stok di lokasi
@@ -213,14 +213,14 @@ def insert_transaksi(payload):
                     id_transaksi, id_produk, qty, harga_satuan,
                     status, created_at, updated_at
                 ) VALUES (
-                    :id_transaksi, :id_produk, :qty, :harga_satuan,
+                    :id_transaksi, :id_produk, :qty, :harga_jual,
                     1, :timestamp_wita, :timestamp_wita
                 );
             """), {
                 "id_transaksi": id_transaksi,
                 "id_produk": id_produk,
                 "qty": qty,
-                "harga_satuan": harga_satuan,
+                "harga_jual": harga_jual,
                 "timestamp_wita": timestamp_wita
             })
 
@@ -271,7 +271,7 @@ def get_transaksi_by_id(id_transaksi):
 
             # Ambil detail item per transaksi
             detail_result = connection.execute(text("""
-                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan
+                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan AS harga_jual
                 FROM detailtransaksi dt
                 INNER JOIN produk pr ON dt.id_produk = pr.id_produk
                 WHERE dt.id_transaksi = :id_transaksi AND dt.status = 1;
@@ -284,7 +284,7 @@ def get_transaksi_by_id(id_transaksi):
                     "id_produk": item["id_produk"],
                     "nama_produk": item["nama_produk"],
                     "qty": item["qty"],
-                    "harga_satuan": item["harga_satuan"]
+                    "harga_jual": item["harga_jual"]
                 })
 
             row_dict["items"] = items
