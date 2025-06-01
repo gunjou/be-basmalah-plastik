@@ -65,7 +65,7 @@ def get_all_transaksi():
 
             # Ambil detail item
             detail_result = connection.execute(text("""
-                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan AS harga_jual
+                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_jual
                 FROM detailtransaksi dt
                 INNER JOIN produk pr ON dt.id_produk = pr.id_produk
                 WHERE dt.id_transaksi = :id_transaksi AND dt.status = 1;
@@ -210,7 +210,7 @@ def insert_transaksi(payload):
             # Insert ke detail_transaksi
             connection.execute(text("""
                 INSERT INTO detailtransaksi (
-                    id_transaksi, id_produk, qty, harga_satuan,
+                    id_transaksi, id_produk, qty, harga_jual,
                     status, created_at, updated_at
                 ) VALUES (
                     :id_transaksi, :id_produk, :qty, :harga_jual,
@@ -271,7 +271,7 @@ def get_transaksi_by_id(id_transaksi):
 
             # Ambil detail item per transaksi
             detail_result = connection.execute(text("""
-                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_satuan AS harga_jual
+                SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_jual
                 FROM detailtransaksi dt
                 INNER JOIN produk pr ON dt.id_produk = pr.id_produk
                 WHERE dt.id_transaksi = :id_transaksi AND dt.status = 1;

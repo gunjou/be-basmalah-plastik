@@ -61,10 +61,10 @@ def get_laporan_penjualan_item_grouped(id_produk=None, id_lokasi=None):
                 pr.nama_produk,
                 SUM(dt.qty) AS total_qty,
                 pr.harga_beli,
-                dt.harga_satuan AS harga_jual,
-                SUM(dt.qty * dt.harga_satuan) AS subtotal,
+                dt.harga_jual,
+                SUM(dt.qty * dt.harga_jual) AS subtotal,
                 SUM(dt.qty * pr.harga_beli) AS modal,
-                SUM((dt.qty * dt.harga_satuan) - (dt.qty * pr.harga_beli)) AS keuntungan
+                SUM((dt.qty * dt.harga_jual) - (dt.qty * pr.harga_beli)) AS keuntungan
             FROM detailtransaksi dt
             INNER JOIN produk pr ON dt.id_produk = pr.id_produk
             INNER JOIN transaksi t ON dt.id_transaksi = t.id_transaksi
@@ -80,7 +80,7 @@ def get_laporan_penjualan_item_grouped(id_produk=None, id_lokasi=None):
             params["id_lokasi"] = id_lokasi
 
         query += """
-            GROUP BY dt.id_produk, pr.nama_produk, pr.harga_beli, dt.harga_satuan
+            GROUP BY dt.id_produk, pr.nama_produk, pr.harga_beli, dt.harga_jual
             ORDER BY pr.nama_produk ASC
         """
 
