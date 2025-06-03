@@ -67,7 +67,8 @@ def delete_hutang(id_hutang):
     try:
         result = connection.execute(
             text("""UPDATE hutang SET status = 0, updated_at = :timestamp_wita 
-                 WHERE status = 1 AND id_hutang = :id_hutang
+                 WHERE status = 1 
+                 AND id_hutang = :id_hutang
                  RETURNING id_hutang;"""),
             {"id_hutang": id_hutang, "timestamp_wita": timestamp_wita}
         ).fetchone()
@@ -77,22 +78,124 @@ def delete_hutang(id_hutang):
         print(f"Error: {e}")
         return None
     
-def count_total_hutang(id_pelanggan=None):
+def get_total_hutang_per_pelanggan(id_pelanggan=None):
     try:
         query = """
-            SELECT COALESCE(SUM(sisa_hutang), 0) AS total_hutang
-            FROM hutang
-            WHERE status = 1 AND status_hutang = 'belum lunas'
+            SELECT
+                h.id_pelanggan,
+                p.nama_pelanggan,
+                p.kontak,
+                COALESCE(SUM(h.sisa_hutang), 0) AS total_sisa_hutang
+            FROM hutang h
+            JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan
+            WHERE h.status = 1 AND h.status_hutang = 'belum lunas'
         """
         params = {}
 
         if id_pelanggan:
-            query += " AND id_pelanggan = :id_pelanggan"
+            query += " AND h.id_pelanggan = :id_pelanggan"
             params["id_pelanggan"] = id_pelanggan
 
-        result = connection.execute(text(query), params).scalar()
-        return result
+        query += " GROUP BY h.id_pelanggan, p.nama_pelanggan, p.kontak ORDER BY total_sisa_hutang DESC"
+
+        result = connection.execute(text(query), params).mappings().fetchall()
+        return [dict(row) for row in result]
+
     except SQLAlchemyError as e:
         connection.rollback()
         print(f"Error occurred: {str(e)}")
-        return 0
+        return []
+
+def count_total_hutang_by_id(id_pelanggan):
+    try:
+        result = connection.execute(text("""
+            SELECT 
+                h.id_pelanggan,
+                COALESCE(SUM(h.sisa_hutang), 0) AS total_hutang,
+                p.nama_pelanggan,
+                p.kontak
+            FROM hutang h
+            INNER JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan   
+            WHERE h.status = 1 
+              AND h.status_hutang = 'belum lunas' 
+              AND h.id_pelanggan = :id_pelanggan
+            GROUP BY h.id_pelanggan, p.nama_pelanggan, p.kontak
+        """), {"id_pelanggan": id_pelanggan}).mappings().fetchone()
+
+        if not result:
+            return {
+                "status": "error",
+                "message": "Tidak ada hutang ditemukan untuk pelanggan ini"
+            }
+
+        return {
+            "id_pelanggan": result['id_pelanggan'],
+            "nama_pelanggan": result['nama_pelanggan'],
+            "kontak": result['kontak'],
+            "total_hutang": result['total_hutang']
+        }
+
+    except SQLAlchemyError as e:
+        connection.rollback()
+        print(f"Error: {e}")
+        return None
+
+def bayar_hutang(id_pelanggan, jumlah_bayar):
+    try:
+        sisa_bayar = jumlah_bayar
+        result = connection.execute(text("""
+            SELECT h.id_hutang, h.sisa_hutang, p.nama_pelanggan, p.kontak
+            FROM hutang h
+            INNER JOIN pelanggan p ON h.id_pelanggan = p.id_pelanggan   
+            WHERE h.id_pelanggan = :id_pelanggan
+            AND h.status = 1
+            AND h.status_hutang = 'belum lunas'
+            ORDER BY id_hutang ASC
+        """), {"id_pelanggan": id_pelanggan}).mappings().fetchall()
+
+        if not result:
+            return None
+
+        data = []
+
+        for row in result:
+            if sisa_bayar <= 0:
+                break
+
+            id_hutang = row['id_hutang']
+            sisa_hutang = row['sisa_hutang']
+            nama_pelanggan = row['nama_pelanggan']
+            kontak = row['kontak']
+
+            if sisa_bayar >= sisa_hutang:
+                # Lunas
+                connection.execute(text("""
+                    UPDATE hutang
+                    SET sisa_hutang = 0, status_hutang = 'lunas', updated_at = :timestamp_wita
+                    WHERE id_hutang = :id_hutang
+                """), {"id_hutang": id_hutang, "timestamp_wita": timestamp_wita})
+                data.append({
+                    "id_hutang": id_hutang, "nama_pelanggan": nama_pelanggan, "kontak": kontak, 
+                    "dibayar": sisa_hutang, "status": "lunas"
+                    })
+                sisa_bayar -= sisa_hutang
+            else:
+                # Sebagian
+                connection.execute(text("""
+                    UPDATE hutang
+                    SET sisa_hutang = sisa_hutang - :dibayar, updated_at = :timestamp_wita
+                    WHERE id_hutang = :id_hutang
+                """), {"dibayar": sisa_bayar, "id_hutang": id_hutang, "timestamp_wita": timestamp_wita})
+                data.append({
+                    "id_hutang": id_hutang, "nama_pelanggan": nama_pelanggan, "kontak": kontak, 
+                    "dibayar": sisa_bayar, "status": "sebagian"
+                    })
+                sisa_bayar = 0
+
+        connection.commit()
+        return data
+
+    except SQLAlchemyError as e:
+        connection.rollback()
+        print(f"Error: {e}")
+        return None

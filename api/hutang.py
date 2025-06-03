@@ -85,19 +85,56 @@ class HutangDetailResource(Resource):
         
 
 @hutang_ns.route('/total')
-class HutangCountResource(Resource):
+class HutangListTotalResource(Resource):
     @jwt_required()
     @hutang_ns.param("id_pelanggan", "Filter berdasarkan ID pelanggan", type="integer")
     def get(self):
         """
-        akses: admin, kasir; total hutang dengan optional filter
+        akses: admin, kasir; daftar total hutang per pelanggan
         """
         id_pelanggan = request.args.get("id_pelanggan", type=int)
         try:
-            total = count_total_hutang(id_pelanggan)
-            if total == 0:
+            data = get_total_hutang_per_pelanggan(id_pelanggan)
+            if not data:
                 return {'status': 'error', 'message': 'Tidak ada hutang yang ditemukan'}, 404
-            return {'total_hutang': total}, 200
+            return {'status': 'success', 'data': data}, 200
         except SQLAlchemyError as e:
             logging.error(f"Database error: {str(e)}")
             return {'status': "Internal server error"}, 500
+
+
+@hutang_ns.route('/total/<int:id_pelanggan>')
+class HutangTotalPerPelangganResource(Resource):
+    @jwt_required()
+    def get(self, id_pelanggan):
+        """akses: admin, kasir; total hutang per pelanggan berdasarkan id"""
+        try:
+            total = count_total_hutang_by_id(id_pelanggan)
+            return {'data': total}, 200
+        except SQLAlchemyError as e:
+            logging.error(f"Database error: {str(e)}")
+            return {'status': "Internal server error"}, 500
+        
+
+@hutang_ns.route('/bayar')
+class BayarHutangResource(Resource):
+    @jwt_required()
+    @hutang_ns.doc(description="Bayar hutang pelanggan (sebagian atau lunas)")
+    @hutang_ns.expect(hutang_ns.model("PembayaranHutang", {
+        "id_pelanggan": fields.Integer(required=True, description="ID pelanggan"),
+        "jumlah_bayar": fields.Integer(required=True, description="Jumlah yang dibayarkan")
+    }))
+    def post(self):
+        payload = request.get_json()
+        try:
+            id_pelanggan = payload.get("id_pelanggan")
+            jumlah_bayar = payload.get("jumlah_bayar")
+            hasil = bayar_hutang(id_pelanggan, jumlah_bayar)
+
+            if not hasil:
+                return {"status": "error", "message": "Pembayaran gagal atau tidak ada hutang aktif"}, 400
+
+            return {"status": "success", "message": f"Hutang berhasil dibayar sebagian/lunas", "detail": hasil}, 200
+        except SQLAlchemyError as e:
+            logging.error(f"Database error: {str(e)}")
+            return {"status": "Internal server error"}, 500
