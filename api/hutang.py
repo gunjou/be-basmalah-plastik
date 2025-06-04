@@ -33,6 +33,8 @@ class HutangListResource(Resource):
     def post(self):
         """akses: admin, kasir"""
         payload = request.get_json()
+        payload["status_hutang"] = payload.get("status_hutang", "").lower()
+
         try:
             new_hutang = insert_hutang(payload)
             if not new_hutang:

@@ -165,7 +165,7 @@ def insert_transaksi(payload):
             """), {
                 "id_transaksi": id_transaksi,
                 "id_pelanggan": id_pelanggan,
-                "sisa_hutang": sisa_hutang,
+                "sisa_hutang": sisa_hutang.lower(),
                 "timestamp_wita": timestamp_wita
             })
 
