@@ -42,7 +42,7 @@ def login_user(username, password):
         else:
             result = connection.execute(
                 text("""
-                    SELECT u.id_user, u.username, u.role, l.nama_lokasi 
+                    SELECT u.id_user, u.id_lokasi, u.username, u.role, l.nama_lokasi 
                     FROM users u 
                     INNER JOIN lokasi l ON u.id_lokasi = l.id_lokasi 
                     WHERE u.username = :username 
