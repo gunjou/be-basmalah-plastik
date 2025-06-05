@@ -35,6 +35,7 @@ def login_user(username, password):
                 'message': 'login success',
                 'id_user': result['id_user'],
                 'role': result['role'],
+                'id_lokasi': result['id_lokasi'],
                 'nama': 'admin'
             }
 
@@ -66,6 +67,7 @@ def login_user(username, password):
                 'message': 'login success',
                 'id_user': result['id_user'],
                 'role': result['role'],
+                'id_lokasi': result['id_lokasi'],
                 'nama': result['username']
             }
 
