@@ -81,7 +81,7 @@ def get_laporan_penjualan_item_grouped(id_produk=None, id_lokasi=None):
             params["id_lokasi"] = id_lokasi
 
         query += """
-            GROUP BY dt.id_produk, pr.nama_produk, pr.harga_beli, dt.harga_jual
+            GROUP BY dt.id_produk, pr.nama_produk, pr.satuan, pr.harga_beli, dt.harga_jual
             ORDER BY pr.nama_produk ASC
         """
 
