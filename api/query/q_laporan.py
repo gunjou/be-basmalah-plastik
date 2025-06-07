@@ -100,6 +100,7 @@ def get_laporan_stok(id_produk=None, id_lokasi=None):
                 l.nama_lokasi,
                 s.id_produk,
                 p.nama_produk,
+                p.satuan,
                 p.harga_beli,
                 p.harga_jual,
                 s.jumlah AS sisa_stok,

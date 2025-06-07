@@ -30,7 +30,8 @@ class TransaksiListResource(Resource):
     @transaksi_ns.doc(params={
         'id_pelanggan': 'Filter berdasarkan ID pelanggan',
         'tanggal': 'Filter berdasarkan tanggal transaksi (format: YYYY-MM-DD)',
-        'status_hutang': 'Filter status hutang ("lunas" atau "belum lunas")'
+        'status_hutang': 'Filter status hutang ("lunas" atau "belum lunas")',
+        'id_lokasi': 'Filter berdasarkan ID lokasi'
     })
     @jwt_required()
     def get(self):

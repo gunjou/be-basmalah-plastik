@@ -66,6 +66,7 @@ def login_user(username, password):
                 'access_token': access_token,
                 'message': 'login success',
                 'id_user': result['id_user'],
+                'id_kasir': result['id_user'],
                 'role': result['role'],
                 'id_lokasi': result['id_lokasi'],
                 'nama': result['username']

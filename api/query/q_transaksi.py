@@ -10,12 +10,11 @@ from flask import request
 
 def get_all_transaksi():
     try:
-        # Ambil filter dari URL query params
         id_pelanggan = request.args.get("id_pelanggan")
         tanggal = request.args.get("tanggal")
-        status_hutang = request.args.get("status_hutang")  # "lunas" atau "belum lunas"
+        status_hutang = request.args.get("status_hutang")
+        id_lokasi = request.args.get("id_lokasi")  # <--- Tambahan filter
 
-        # Build kondisi dinamis
         conditions = ["t.status = 1"]
         params = {}
 
@@ -27,15 +26,18 @@ def get_all_transaksi():
             conditions.append("t.tanggal = :tanggal")
             params["tanggal"] = tanggal
 
+        if id_lokasi:
+            conditions.append("t.id_lokasi = :id_lokasi")
+            params["id_lokasi"] = id_lokasi
+
         if status_hutang:
             if status_hutang.lower() == "lunas":
-                conditions.append("h.status_hutang IS NULL OR h.status_hutang = 'lunas'")
+                conditions.append("(h.status_hutang IS NULL OR h.status_hutang = 'lunas')")
             elif status_hutang.lower() == "belum lunas":
                 conditions.append("h.status_hutang = 'belum lunas'")
 
         where_clause = " AND ".join(conditions)
 
-        # Ambil semua transaksi dengan join
         query = f"""
             SELECT 
                 t.id_transaksi, t.id_kasir, t.id_lokasi, t.id_pelanggan,
@@ -57,13 +59,11 @@ def get_all_transaksi():
         for row in result:
             row_dict = dict(row)
 
-            # Format tanggal
             if isinstance(row_dict["tanggal"], (date, datetime)):
                 row_dict["tanggal"] = row_dict["tanggal"].isoformat()
 
             id_transaksi = row_dict["id_transaksi"]
 
-            # Ambil detail item
             detail_result = connection.execute(text("""
                 SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_jual
                 FROM detailtransaksi dt
@@ -88,7 +88,6 @@ def get_all_transaksi():
         connection.rollback()
         print(f"Error occurred: {str(e)}")
         return []
-
 
     
 def insert_transaksi(payload):
