@@ -59,6 +59,7 @@ def get_laporan_penjualan_item_grouped(id_produk=None, id_lokasi=None):
             SELECT 
                 dt.id_produk,
                 pr.nama_produk,
+                pr.satuan,
                 SUM(dt.qty) AS total_qty,
                 pr.harga_beli,
                 dt.harga_jual,
