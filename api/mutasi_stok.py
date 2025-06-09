@@ -13,7 +13,7 @@ mutasi_stok_model = mutasi_stok_ns.model("MutasiStok", {
     "id_lokasi_asal": fields.Integer(required=True, description="lokasi asal stok"),
     "id_lokasi_tujuan": fields.Integer(required=True, description="lokasi tujuan stok"),
     "qty": fields.Integer(required=True, description="jumlah stok (quantity)"),
-    "keterangan": fields.String(required=True, description="keterangan untuk produk"),
+    "keterangan": fields.String(required=False, description="keterangan untuk produk"),
 })
 
 @mutasi_stok_ns.route('/')
