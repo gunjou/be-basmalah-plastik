@@ -20,7 +20,7 @@ api = Flask(__name__)
 CORS(api)
 
 api.config['JWT_SECRET_KEY'] = 'basmalahplastik2025'
-api.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=20)  # Atur sesuai kebutuhan
+api.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(hours=13)  # Atur sesuai kebutuhan
 api.config['JWT_BLACKLIST_ENABLED'] = True
 api.config['JWT_BLACKLIST_TOKEN_CHECKS'] = ['access', 'refresh']
 
@@ -32,6 +32,19 @@ jwt = JWTManager(api)
 def check_if_token_revoked(jwt_header, jwt_payload):
     jti = jwt_payload['jti']
     return is_token_revoked(jti)
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    return {'status': 'Token expired, Login ulang'}, 401
+
+@jwt.invalid_token_loader
+def invalid_token_callback(reason):
+    print("ALASAN TOKEN INVALID:", reason) 
+    return {'status': 'Invalid token'}, 401
+
+@jwt.unauthorized_loader
+def missing_token_callback(reason):
+    return {'status': 'Missing token'}, 401
 
 authorizations = {
     'Bearer Auth': {
