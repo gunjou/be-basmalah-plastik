@@ -63,7 +63,9 @@ def get_all_transaksi():
                 row_dict["tanggal"] = row_dict["tanggal"].isoformat()
 
             id_transaksi = row_dict["id_transaksi"]
+            id_pelanggan = row_dict.get("id_pelanggan")
 
+            # Ambil items transaksi
             detail_result = connection.execute(text("""
                 SELECT dt.id_produk, pr.nama_produk, dt.qty, dt.harga_jual
                 FROM detailtransaksi dt
@@ -80,6 +82,18 @@ def get_all_transaksi():
                 } for item in detail_result
             ]
 
+            # Hitung total_hutang jika ada id_pelanggan
+            total_hutang = 0
+            if id_pelanggan:
+                hutang_result = connection.execute(text("""
+                    SELECT SUM(sisa_hutang) AS total_hutang
+                    FROM hutang
+                    WHERE id_pelanggan = :id_pelanggan AND status = 1;
+                """), {"id_pelanggan": id_pelanggan}).mappings().fetchone()
+                total_hutang = hutang_result["total_hutang"] if hutang_result["total_hutang"] is not None else 0
+
+            row_dict["total_hutang"] = total_hutang
+
             data.append(row_dict)
 
         return data
@@ -88,6 +102,7 @@ def get_all_transaksi():
         connection.rollback()
         print(f"Error occurred: {str(e)}")
         return []
+
 
     
 def insert_transaksi(payload):
@@ -267,6 +282,7 @@ def get_transaksi_by_id(id_transaksi):
                 row_dict["tanggal"] = row_dict["tanggal"].isoformat()
 
             id_transaksi = row_dict["id_transaksi"]
+            id_pelanggan = row_dict.get("id_pelanggan")
 
             # Ambil detail item per transaksi
             detail_result = connection.execute(text("""
@@ -287,6 +303,19 @@ def get_transaksi_by_id(id_transaksi):
                 })
 
             row_dict["items"] = items
+
+            # Hitung total_hutang berdasarkan id_pelanggan
+            total_hutang = 0
+            if id_pelanggan:
+                hutang_total_result = connection.execute(text("""
+                    SELECT SUM(sisa_hutang) AS total_hutang
+                    FROM hutang
+                    WHERE id_pelanggan = :id_pelanggan AND status = 1;
+                """), {"id_pelanggan": id_pelanggan}).mappings().fetchone()
+                total_hutang = hutang_total_result["total_hutang"] if hutang_total_result["total_hutang"] is not None else 0
+
+            row_dict["total_hutang"] = total_hutang
+
             data.append(row_dict)
 
         return data
