@@ -21,7 +21,7 @@ def get_all_stok(lokasi_id=None):
         query = """
             SELECT s.id_stok, s.id_produk, s.id_lokasi, s.jumlah, 
                    p.nama_produk, p.barcode, p.kategori, p.satuan, p.harga_beli, 
-                   p.harga_jual, l.nama_lokasi, l.tipe
+                   p.harga_jual, p.expired_date, p.stok_optimal, l.nama_lokasi, l.tipe
             FROM stok s
             INNER JOIN produk p ON s.id_produk = p.id_produk
             INNER JOIN lokasi l ON s.id_lokasi = l.id_lokasi
@@ -34,20 +34,29 @@ def get_all_stok(lokasi_id=None):
             params["lokasi_id"] = lokasi_id
 
         result = connection.execute(text(query), params).mappings().fetchall()
-        return [dict(row) for row in result]
+        
+        data = []
+        for row in result:
+            row_dict = dict(row)
+            if row_dict.get("expired_date"):
+                row_dict["expired_date"] = row_dict["expired_date"].isoformat()
+            data.append(row_dict)
+
+        return data
+
     except SQLAlchemyError as e:
         connection.rollback()
         print(f"Error occurred: {str(e)}")
         return []
 
+
 def insert_stok(data):
     try:
-        # Insert produk terlebih dahulu
         result_produk = connection.execute(text("""
             INSERT INTO produk 
-                (nama_produk, barcode, kategori, satuan, harga_beli, harga_jual, status, created_at, updated_at)
+                (nama_produk, barcode, kategori, satuan, harga_beli, harga_jual, status, expired_date, stok_optimal, created_at, updated_at)
             VALUES 
-                (:nama_produk, :barcode, :kategori, :satuan, :harga_beli, :harga_jual, 1, :timestamp_wita, :timestamp_wita)
+                (:nama_produk, :barcode, :kategori, :satuan, :harga_beli, :harga_jual, 1, :expired_date, :stok_optimal, :timestamp_wita, :timestamp_wita)
             RETURNING id_produk, nama_produk, satuan
         """), {
             "nama_produk": data["nama_produk"],
@@ -56,12 +65,14 @@ def insert_stok(data):
             "satuan": data["satuan"],
             "harga_beli": data["harga_beli"],
             "harga_jual": data["harga_jual"],
+            "expired_date": data.get("expired_date"),  # Optional
+            "stok_optimal": data.get("stok_optimal", 0),
             "timestamp_wita": timestamp_wita
         }).mappings().fetchone()
 
         id_produk = result_produk["id_produk"]
 
-        # Insert stok setelah produk berhasil dibuat
+        # Insert stok
         connection.execute(text("""
             INSERT INTO stok 
                 (id_produk, id_lokasi, jumlah, status, created_at, updated_at)
@@ -100,7 +111,9 @@ def update_stok(id_stok, data):
                 kategori = :kategori, 
                 satuan = :satuan, 
                 harga_beli = :harga_beli, 
-                harga_jual = :harga_jual, 
+                harga_jual = :harga_jual,
+                expired_date = :expired_date,
+                stok_optimal = :stok_optimal,
                 updated_at = :timestamp_wita
             WHERE id_produk = :id_produk
             RETURNING id_produk, nama_produk, satuan
@@ -112,6 +125,8 @@ def update_stok(id_stok, data):
             "satuan": data["satuan"],
             "harga_beli": data["harga_beli"],
             "harga_jual": data["harga_jual"],
+            "expired_date": data.get("expired_date"),        # Optional
+            "stok_optimal": data.get("stok_optimal"),        # Optional
             "timestamp_wita": timestamp_wita
         }).mappings().fetchone()
 

@@ -143,6 +143,8 @@ def get_laporan_stok(id_produk=None, id_lokasi=None, start_date=None, end_date=N
                 p.satuan,
                 p.harga_beli,
                 p.harga_jual,
+                p.expired_date,
+                p.stok_optimal,
                 s.jumlah AS sisa_stok,
                 (s.jumlah * p.harga_beli) AS nilai_modal,
                 (s.jumlah * (p.harga_jual - p.harga_beli)) AS potensi_keuntungan
@@ -167,7 +169,15 @@ def get_laporan_stok(id_produk=None, id_lokasi=None, start_date=None, end_date=N
         query += " ORDER BY s.id_lokasi, s.id_produk"
 
         result = connection.execute(text(query), params).mappings().fetchall()
-        return [dict(row) for row in result]
+
+        laporan = []
+        for row in result:
+            data = dict(row)
+            if data["expired_date"]:
+                data["expired_date"] = data["expired_date"].isoformat()
+            laporan.append(data)
+
+        return laporan
 
     except SQLAlchemyError as e:
         connection.rollback()

@@ -8,15 +8,25 @@ timestamp_wita = get_wita()
 def get_all_produk():
     try:
         result = connection.execute(text("""
-            SELECT id_produk, nama_produk, barcode, kategori, satuan, harga_beli, harga_jual
+            SELECT id_produk, nama_produk, barcode, kategori, satuan, harga_beli, harga_jual, expired_date, stok_optimal
             FROM produk
             WHERE status = 1;   
         """)).mappings().fetchall()
-        return [dict(row) for row in result]
+
+        produk_list = []
+        for row in result:
+            data = dict(row)
+            if data["expired_date"]:
+                data["expired_date"] = data["expired_date"].isoformat()
+            produk_list.append(data)
+
+        return produk_list
+
     except SQLAlchemyError as e:
         connection.rollback()
         print(f"Error occurred: {str(e)}")
         return []
+
     
 # def insert_produk(data):
 #     try:
@@ -34,12 +44,19 @@ def get_all_produk():
 def get_produk_by_id(id_produk):
     try:
         result = connection.execute(text("""
-            SELECT id_produk, nama_produk, barcode, kategori, satuan, harga_beli, harga_jual
+            SELECT id_produk, nama_produk, barcode, kategori, satuan, harga_beli, harga_jual, expired_date, stok_optimal
             FROM produk
             WHERE id_produk = :id_produk
             AND status = 1;   
         """), {'id_produk': id_produk}).mappings().fetchone()
-        return dict(result) if result else None
+        
+        if result:
+            data = dict(result)
+            if data["expired_date"]:
+                data["expired_date"] = data["expired_date"].isoformat()
+            return data
+        else:
+            return None
     except SQLAlchemyError as e:
         connection.rollback()
         print(f"Error occurred: {str(e)}")
@@ -57,6 +74,8 @@ def update_produk(id_produk, data):
                 satuan = :satuan, 
                 harga_beli = :harga_beli, 
                 harga_jual = :harga_jual,
+                expired_date = :expired_date,
+                stok_optimal = :stok_optimal,
                 updated_at = :timestamp_wita 
                 WHERE id_produk = :id_produk 
                 RETURNING nama_produk;

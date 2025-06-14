@@ -15,6 +15,8 @@ produk_model = produk_ns.model("Produk", {
     "satuan": fields.String(required=True, description="Satuan produk"),
     "harga_beli": fields.Integer(required=False, description="Harga beli produk (modal)"),
     "harga_jual": fields.Integer(required=False, description="Harga jual produk"),
+    "expired_date": fields.String(required=False, description="Tanggal kedaluwarsa produk (DD-MM-YYYY)"),
+    "stok_optimal": fields.Integer(required=False, description="Batas stok optimal untuk produk"),
 })
 
 @produk_ns.route('/')
