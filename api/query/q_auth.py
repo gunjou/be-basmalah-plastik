@@ -4,74 +4,75 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from ..utils.config import get_connection
 
-connection = get_connection().connect()
 
 def login_user(username, password):
+    engine = get_connection()
     try:
-        if username == 'admin':
-            result = connection.execute(
-                text("""
-                    SELECT * 
-                    FROM users
-                    WHERE username = :username 
-                    AND password = :password;
-                """),
-                {"username": username, "password": password}
-            ).mappings().fetchone()
+        with engine.connect() as connection:
+            if username == 'admin':
+                result = connection.execute(
+                    text("""
+                        SELECT * 
+                        FROM users
+                        WHERE username = :username 
+                        AND password = :password;
+                    """),
+                    {"username": username, "password": password}
+                ).mappings().fetchone()
 
-            if not result:
-                return None
+                if not result:
+                    return None
 
-            access_token = create_access_token(
-                identity=str(result['id_user']),
-                additional_claims={
-                    "role": result['role'],
-                    "nama": "admin"
+                access_token = create_access_token(
+                    identity=str(result['id_user']),
+                    additional_claims={
+                        "role": result['role'],
+                        "nama": "admin"
+                    }
+                )
+
+                return {
+                    'access_token': access_token,
+                    'message': 'login success',
+                    'id_user': result['id_user'],
+                    'role': result['role'],
+                    'id_lokasi': result['id_lokasi'],
+                    'nama': 'admin'
                 }
-            )
 
-            return {
-                'access_token': access_token,
-                'message': 'login success',
-                'id_user': result['id_user'],
-                'role': result['role'],
-                'id_lokasi': result['id_lokasi'],
-                'nama': 'admin'
-            }
+            else:
+                result = connection.execute(
+                    text("""
+                        SELECT u.id_user, u.id_lokasi, u.username, u.role, l.nama_lokasi 
+                        FROM users u 
+                        INNER JOIN lokasi l ON u.id_lokasi = l.id_lokasi 
+                        WHERE u.username = :username 
+                        AND u.password = :password;
+                    """),
+                    {"username": username, "password": password}
+                ).mappings().fetchone()
 
-        else:
-            result = connection.execute(
-                text("""
-                    SELECT u.id_user, u.id_lokasi, u.username, u.role, l.nama_lokasi 
-                    FROM users u 
-                    INNER JOIN lokasi l ON u.id_lokasi = l.id_lokasi 
-                    WHERE u.username = :username 
-                    AND u.password = :password;
-                """),
-                {"username": username, "password": password}
-            ).mappings().fetchone()
+                if not result:
+                    return None
 
-            if not result:
-                return None
+                access_token = create_access_token(
+                    identity=str(result['id_user']),
+                    additional_claims={
+                        "role": result['role'],
+                        "nama": result['username']
+                    }
+                )
 
-            access_token = create_access_token(
-                identity=str(result['id_user']),
-                additional_claims={
-                    "role": result['role'],
-                    "nama": result['username']
+                return {
+                    'access_token': access_token,
+                    'message': 'login success',
+                    'id_user': result['id_user'],
+                    'id_kasir': result['id_user'],
+                    'role': result['role'],
+                    'id_lokasi': result['id_lokasi'],
+                    'nama': result['username']
                 }
-            )
-
-            return {
-                'access_token': access_token,
-                'message': 'login success',
-                'id_user': result['id_user'],
-                'id_kasir': result['id_user'],
-                'role': result['role'],
-                'id_lokasi': result['id_lokasi'],
-                'nama': result['username']
-            }
-
+            
     except SQLAlchemyError as e:
         print(f"Error occurred: {str(e)}")
         return {'msg': 'Internal server error'}
